@@ -23,12 +23,31 @@ resource "docker_image" "imagen-ubuntu" {
 resource "docker_container" "contenedor-ubuntu" {
   name  = "mi_contenedor_ubuntu"
   image = docker_image.imagen-ubuntu.latest
-  host_path = "/home/ubuntu/environment/cursoTerraform"
-  volume_name = "/cursoTerraform"
-  //host_path = "/home/ubuntu/environment/ivan"
-  //volume_name = "/ivan"
+  
+  dynamic "volumes" {
+      for_each = var.volumenes
+      content {
+          volume_name       =   contains(keys(volumes.value), "volume_name") ? volumes.value ["volume_name"] : null
+          # volume_name    = lookup(volumes.value, "volume_name", null)
+          host_path         =   volumes.value["host_path"]
+          container_path    =   volumes.value["container_path"]
+          
+      }
+  }
   
 }
+/*  volumes {
+        host_path = "/home/ubuntu/environment/cursoTerraform"
+        container_path = "/cursoTerraform"
+  }
+  volumes {
+        host_path = "/home/ubuntu/environment/ivan"
+        container_path = "/ivan"    
+  }
+  */
+  
+  
+
 
 /*
 2 volumenes dentro del contenedor:
